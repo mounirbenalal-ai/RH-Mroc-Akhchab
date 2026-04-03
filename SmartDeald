@@ -1,0 +1,22 @@
+<script>
+// قاعدة بيانات NARSA الحقيقية
+const narsaDB = {
+    "قانون_1": "المادة 1: تسري أحكام هذا القانون على السير على الطرق العامة المفتوحة للسير الجبلي.",
+    "قانون_2": "المادة 2: لا يجوز لأي شخص أن يسوق مركبة بمحرك دون أن يكون حاصلاً على رخصة سياقة.",
+    "مخالفة_السرعة": "تجاوز السرعة بأقل من 20 كلم/س: غرامة تصالحية قدرها 300 درهم.",
+    "الهاتف": "استخدام الهاتف باليد أثناء السياقة: غرامة 500 درهم وسحب نقطتين."
+};
+
+// وظيفة المعالجة الذكية لـ TIMO
+function timoSearch(query) {
+    const output = document.getElementById('output'); // تأكد أن هذا هو معرف Matrix الحوار
+    let response = "🤖 تيمو: عذراً، لم أجد هذا النص في قاعدة بيانات NARSA حالياً.";
+
+    if (query.includes("المادة 1")) response = `🤖 تيمو: ${narsaDB.قانون_1}`;
+    if (query.includes("رخصة") || query.includes("المادة 2")) response = `🤖 تيمو: ${narsaDB.قانون_2}`;
+    if (query.includes("هاتف")) response = `🤖 تيمو: ${narsaDB.الهاتف}`;
+
+    output.innerHTML += `<div class="timo-line">${response}</div>`;
+    output.scrollTop = output.scrollHeight;
+}
+</script>

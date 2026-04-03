@@ -1,0 +1,1 @@
+https://fivex-fusion-hub.lovable.app (GET)  # sqlmap-dev/sqlmap.py -u https://fivex-fusion-hub.lovable.app --batch

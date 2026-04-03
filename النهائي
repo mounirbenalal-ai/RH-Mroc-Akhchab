@@ -1,0 +1,46 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import AppCard from '../components/AppCard';
+
+const Dashboard = () => {
+  const [activeApp, setActiveApp] = useState<string | null>(null);
+
+  const apps = [
+    { name: "SmartDeals", icon: "🛍️", color: "bg-emerald-600" },
+    { name: "TimoSupreme", icon: "👑", color: "bg-indigo-600" },
+    { name: "Facebook", icon: "🌐", color: "bg-blue-600" }
+  ];
+
+  return (
+    <div className="min-h-screen bg-black text-white p-6 font-mono">
+      <header className="mb-10 text-center">
+        <h1 className="text-2xl font-bold text-cyan-500 tracking-widest uppercase">MB-5×1 Control Panel</h1>
+        <div className="h-1 w-20 bg-cyan-500 mx-auto mt-2 animate-pulse" />
+      </header>
+
+      <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+        {apps.map((app) => (
+          <AppCard key={app.name} {...app} onClick={() => setActiveApp(app.name)} />
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {activeApp && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setActiveApp(null)}
+          >
+            <div className="bg-zinc-900 border-2 border-cyan-500 p-8 rounded-2xl text-center max-w-xs">
+              <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <h2 className="text-lg font-bold uppercase tracking-widest">{activeApp}</h2>
+              <p className="text-gray-400 text-sm mt-2">جاري مزامنة البيانات السحابية...</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default Dashboard;

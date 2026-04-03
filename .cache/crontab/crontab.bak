@@ -1,0 +1,2 @@
+0 8 * * * python3 ~/SmartDeals/core/telegram_notifier.py
+0 9 * * * curl http://127.0.0.1:5000/update_currency
