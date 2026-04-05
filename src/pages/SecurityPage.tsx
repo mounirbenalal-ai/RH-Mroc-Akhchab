@@ -1,21 +1,48 @@
-import React from 'react';
+cat << 'EOF' > src/pages/SecurityDashboard.tsx
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
-const SecurityPage = () => (
-  <div className="animate-in slide-in-from-bottom duration-500 font-noto text-right" dir="rtl">
-    <h2 className="text-3xl font-bold text-akhchab-green mb-8">بوابة الأمن والحماية</h2>
-    <div className="bg-white p-6 rounded-[2rem] shadow-xl border border-akhchab-green/10">
-      <h3 className="text-xl font-bold text-akhchab-green mb-6 flex items-center gap-2">
-        <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span> السجل المباشر
-      </h3>
-      <div className="space-y-4">
-        {['ياسين', 'زكرياء', 'فاطمة'].map((name, i) => (
-          <div key={i} className="bg-gray-50 p-4 rounded-xl flex justify-between items-center border border-gray-100">
-            <span className="font-bold text-akhchab-green">{name}</span>
-            <span className="text-gray-500 text-sm">{i === 2 ? 'خروج' : 'دخول'} - البوابة الرئيسية</span>
+interface Log {
+  id: number;
+  created_at: string;
+  status: string;
+  user_agent: string;
+  error_log: string;
+}
+
+export default function SecurityDashboard() {
+  const [logs, setLogs] = useState<Log[]>([]);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      const { data } = await supabase
+        .from('login_attempts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (data) setLogs(data);
+    };
+    fetchLogs();
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-black text-white p-6" dir="rtl">
+      <h1 className="text-2xl font-bold mb-6 text-blue-500">🛡️ سجل الرقابة الأمنية - طنجة</h1>
+      
+      <div className="grid gap-4">
+        {logs.map((log) => (
+          <div key={log.id} className={`p-4 border rounded-xl ${log.status === 'FAILED' ? 'border-red-900 bg-red-950/20' : 'border-green-900 bg-green-950/20'}`}>
+            <div className="flex justify-between items-center mb-2">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${log.status === 'FAILED' ? 'bg-red-600' : 'bg-green-600'}`}>
+                {log.status === 'FAILED' ? 'محاولة فاشلة' : 'دخول ناجح'}
+              </span>
+              <span className="text-gray-500 text-sm">{new Date(log.created_at).toLocaleString('ar-MA')}</span>
+            </div>
+            <p className="text-sm text-gray-300 font-mono break-all">{log.user_agent}</p>
+            {log.error_log && <p className="mt-2 text-red-400 text-sm">⚠️ السبب: {log.error_log}</p>}
           </div>
         ))}
       </div>
     </div>
-  </div>
-);
-export default SecurityPage;
+  );
+}
+EOF

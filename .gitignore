@@ -1,9 +1,5 @@
-node_modules/
-dist/
-build/
+node_modules
 .env
-*.log
+dist
+.vscode
 .DS_Store
-.ssh/
-.ssh/
-.ssh/

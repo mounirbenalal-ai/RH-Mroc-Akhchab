@@ -1,0 +1,6 @@
+cat << 'EOF' > .env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+EOF
+# منع أي مستخدم آخر على الجهاز من قراءة الملف
+chmod 600 .env

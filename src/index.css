@@ -2,8 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --wood-dark: #2D5A27;
+  --wood-light: #F5F1E9;
+}
+
 body {
-  margin: 0;
-  background-color: #F5F1E9;
+  background-color: var(--wood-light);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   direction: rtl;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
