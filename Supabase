@@ -1,0 +1,15 @@
+-- تفعيل الحماية على جدول الموظفين
+ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
+
+-- إنشاء سياسة تسمح فقط للمديرين المسجلين برؤية البيانات
+CREATE POLICY "Admins can view all employees" 
+ON employees 
+FOR SELECT 
+USING (auth.jwt() ->> 'role' = 'authenticated');
+
+-- إنشاء سياسة تمنع أي شخص غير مسجل من التعديل
+CREATE POLICY "Only admins can modify" 
+ON employees 
+FOR ALL 
+USING (auth.jwt() ->> 'email' = 'mounirbenalal@gmail.com');
+
