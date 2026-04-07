@@ -1,15 +1,23 @@
--- تفعيل الحماية على جدول الموظفين
+-- 1. تفعيل نظام الحماية على الجدول (ضروري جداً)
 ALTER TABLE employees ENABLE ROW LEVEL SECURITY;
 
--- إنشاء سياسة تسمح فقط للمديرين المسجلين برؤية البيانات
-CREATE POLICY "Admins can view all employees" 
-ON employees 
-FOR SELECT 
-USING (auth.jwt() ->> 'role' = 'authenticated');
+-- 2. حذف السياسات القديمة (لتجنب التكرار أو التضارب)
+DROP POLICY IF EXISTS "Admins can view all employees" ON employees;
+DROP POLICY IF EXISTS "Only admins can modify" ON employees;
+DROP POLICY IF EXISTS "Employees can view own data" ON employees;
+DROP POLICY IF EXISTS "Managers can view all" ON employees;
 
--- إنشاء سياسة تمنع أي شخص غير مسجل من التعديل
-CREATE POLICY "Only admins can modify" 
-ON employees 
+-- 3. سياسة المشاهدة: الموظف يرى بياناته فقط، والمدير يرى الجميع
+CREATE POLICY "View Policy" ON employees
+FOR SELECT
+USING (
+  auth.uid() = user_id 
+  OR 
+  (auth.jwt() ->> 'email' = 'mounirbenalal@gmail.com')
+);
+
+-- 4. سياسة التعديل: حصرياً للمدير (أنت) عبر البريد الإلكتروني
+CREATE POLICY "Admin Modification Policy" ON employees
 FOR ALL 
-USING (auth.jwt() ->> 'email' = 'mounirbenalal@gmail.com');
-
+USING (auth.jwt() ->> 'email' = 'mounirbenalal@gmail.com')
+WITH CHECK (auth.jwt() ->> 'email' = 'mounirbenalal@gmail.com');
