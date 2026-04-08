@@ -1,90 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Search, MoreVertical } from 'lucide-react';
-import { getEmployees, addEmployee } from '../lib/api';
-import { Employee } from '../types/database';
+import { supabase } from '@/integrations/supabase/client';
+import { UserPlus, Search, Mail, Phone, Briefcase, MoreVertical, Trash2, Edit } from 'lucide-react';
 
-const Employees = () => {
+interface Employee {
+  id: string;
+  full_name: string;
+  position: string;
+  department: string;
+  phone: string;
+  status: 'active' | 'on_leave' | 'terminated';
+}
+
+export default function Employees() {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // جلب الموظفين من قاعدة البيانات (Profiles)
   useEffect(() => {
-    fetchData();
+    fetchEmployees();
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const data = await getEmployees();
-      setEmployees(data || []);
-    } catch (err) {
-      console.error("Error fetching employees:", err);
-    } finally {
-      setLoading(false);
+  const fetchEmployees = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, position, department, phone');
+    
+    if (data) {
+      // قمنا بمحاكاة "الحالة" هنا لأنها غير موجودة في الـ Schema الأساسي
+      const formatted = data.map(emp => ({
+        ...emp,
+        status: 'active' as const
+      }));
+      setEmployees(formatted);
     }
+    setLoading(false);
   };
 
+  const filteredEmployees = employees.filter(emp =>
+    emp.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp.position?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <Users className="text-emerald-600" /> إدارة الكفاءات
-        </h1>
-        <button className="bg-emerald-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-md">
-          <UserPlus size={20} /> إضافة موظف جديد
+    <div className="p-4 md:p-8 space-y-6 text-right" dir="rtl">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900">إدارة الموظفين</h2>
+          <p className="text-slate-500 text-sm mt-1">عرض وتعديل بيانات الكادر البشري</p>
+        </div>
+        <button className="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/20">
+          <UserPlus size={20} />
+          إضافة موظف جديد
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
-        <div className="p-4 border-b border-stone-100 bg-stone-50/50">
-          <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="البحث عن موظف بالاسم أو القسم..." 
-              className="w-full pr-10 pl-4 py-2 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
-            />
-          </div>
-        </div>
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+        <input
+          type="text"
+          placeholder="ابحث عن موظف بالاسم أو المنصب..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pr-12 pl-4 py-4 bg-white border border-slate-100 rounded-[2rem] shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition"
+        />
+      </div>
 
-        <table className="w-full text-right">
-          <thead className="bg-stone-50 text-stone-500 text-sm">
-            <tr>
-              <th className="p-4 font-semibold">الموظف</th>
-              <th className="p-4 font-semibold">المنصب</th>
-              <th className="p-4 font-semibold">القسم</th>
-              <th className="p-4 font-semibold">الحالة</th>
-              <th className="p-4"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-stone-100">
-            {loading ? (
-              <tr><td colSpan={5} className="p-10 text-center text-stone-400">جاري جلب البيانات من السحابة...</td></tr>
-            ) : employees.map((emp) => (
-              <tr key={emp.id} className="hover:bg-stone-50 transition-colors">
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center font-bold">
-                      {emp.full_name[0]}
-                    </div>
-                    <span className="font-medium text-slate-700">{emp.full_name}</span>
-                  </div>
-                </td>
-                <td className="p-4 text-stone-600">{emp.position}</td>
-                <td className="p-4 text-stone-600">{emp.department}</td>
-                <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-xs ${
-                    emp.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                  }`}>
-                    {emp.status === 'active' ? 'نشط' : 'إجازة'}
-                  </span>
-                </td>
-                <td className="p-4 text-stone-400"><MoreVertical size={18} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Employees Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          <p className="text-center col-span-full py-10 text-slate-400">جاري تحميل البيانات...</p>
+        ) : filteredEmployees.map((emp) => (
+          <div key={emp.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+            <div className="flex justify-between items-start mb-4">
+              <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-600 font-black text-xl">
+                {emp.full_name?.[0]}
+              </div>
+              <button className="p-2 text-slate-400 hover:text-slate-900 transition">
+                <MoreVertical size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="font-black text-lg text-slate-900">{emp.full_name}</h3>
+              <p className="text-emerald-600 text-sm font-bold flex items-center gap-1">
+                <Briefcase size={14} />
+                {emp.position || 'موظف'}
+              </p>
+              <p className="text-slate-400 text-xs">{emp.department || 'القسم العام'}</p>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-slate-50 flex flex-col gap-3">
+              <div className="flex items-center gap-3 text-slate-600 text-sm">
+                <Phone size={16} className="text-slate-400" />
+                <span>{emp.phone || 'لا يوجد هاتف'}</span>
+              </div>
+              <div className="flex items-center gap-3 text-slate-600 text-sm">
+                <Mail size={16} className="text-slate-400" />
+                <span className="truncate">example@mroc-wood.com</span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-2">
+              <button className="flex-1 bg-slate-50 text-slate-600 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-100 transition">
+                تعديل الملف
+              </button>
+              <button className="p-2.5 text-rose-500 bg-rose-50 rounded-xl hover:bg-rose-100 transition">
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
-};
-
-export default Employees;
+}
