@@ -1,10 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// بيانات الربط مع الذاكرة السحابية
+const supabaseUrl = 'https://your-project-id.supabase.co';
+const supabaseAnonKey = 'your-anon-key';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("⚠️ إعدادات Supabase غير مكتملة في ملف .env");
-}
-
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

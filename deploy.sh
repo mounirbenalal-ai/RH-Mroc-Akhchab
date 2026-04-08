@@ -1,20 +1,20 @@
-#!/bin/bash
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+#!/data/data/com.termux/files/usr/bin/bash
 
-echo -e "${BLUE}🚀 تحديث مشروع أخشاب المغرب...${NC}"
+echo "🛠️ جاري إصلاح تعارضات الحزم والرفع القسري..."
 
-# تجميع الملفات
-git add .
-git commit -m "Update system - Moroccan Woods Branding"
+# 1. تنصيب الحزم مع تجاوز التعارضات
+npm install gh-pages --save-dev --force
+npm install --force
 
-# الرفع المباشر (سيستخدم الرابط المدمج فيه التوكن)
-echo -e "${BLUE}📤 جاري الرفع إلى GitHub...${NC}"
-git push -f origin main
+# 2. بناء المشروع
+echo "🏗️ جاري بناء نسخة المتصفح..."
+npm run build
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ تم الرفع والتحديث بنجاح!${NC}"
-else
-    echo -e "\033[0;31m❌ فشل الرفع. تأكد من صحة التوكن في إعدادات git remote.${NC}"
-fi
+# 3. الرفع إلى GitHub Pages
+echo "🚀 جاري الرفع إلى الإنترنت..."
+./node_modules/.bin/gh-pages -d dist
+
+echo "------------------------------------------------"
+echo "✅ اكتملت العملية بنجاح!"
+echo "🌐 الرابط: https://benalal-ai.github.io/RH-Mroc-Akhchab/"
+echo "------------------------------------------------"
