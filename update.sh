@@ -1,9 +1,6 @@
-#!/data/data/com.termux/files/usr/bin/bash
-echo "🚀 جاري تحديث نظام المغربية للأخشاب..."
-cd ~/projects/RH-Mroc-Akhchab
-npm run build
+#!/bin/bash
+echo "🛡️ جاري تأمين وتحديث نظام المغربية للأخشاب..."
 git add .
-git commit -m "System auto-update: $(date)"
+git commit -m "Update: Integrated Auth, Dashboard and Settings System"
 git push origin main
-npx gh-pages -d dist
-echo "✅ تم التحديث والنشر بنجاح!"
+echo "🚀 تم رفع الكود بنجاح إلى GitHub وتحديث البيئة المحلية!"
